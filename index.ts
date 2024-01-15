@@ -1,16 +1,11 @@
 import fs from "fs"
-import remarkParse from "remark-parse"
-// import remarkStringify from "remark-stringify"
-import { unified } from "unified"
 import { toMarkdown } from "mdast-util-to-markdown"
+import { fromMarkdown } from "mdast-util-from-markdown"
 
 const main = async () => {
   const file = fs.readFileSync("tasks.md", "utf-8")
 
-  const tokens = await unified().use(remarkParse).parse(file)
-  // .use(remarkStringify)
-  // .process("# Hello, Neptune!")
-
+  const tokens = fromMarkdown(file)
   console.log(tokens)
 
   const text = toMarkdown(tokens)

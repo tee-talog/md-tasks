@@ -15,10 +15,8 @@
     "prettier": "3.1"
   },
   "dependencies": {
+    "mdast-util-from-markdown": "^2.0.0",
     "mdast-util-to-markdown": "^2.1.0",
-    "remark-parse": "^11.0.0",
-    "remark-stringify": "^11.0.0",
-    "ts-node": "^10.9.2",
-    "unified": "^11.0.4"
+    "ts-node": "^10.9.2"
   }
 }
