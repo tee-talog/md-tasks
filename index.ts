@@ -71,8 +71,16 @@ const shiftTask = (tokens: Root, id: string, step: number): Root | null => {
                 : i < headingIndexes[moveTo + 1])
           )
           if (destinationList === undefined) {
-            // TODO: 新しくリストを作る
-            return null
+            // セクションにリストが存在しない場合は、新しくリストを作る
+            const defaultList: List = {
+              type: "list",
+              ordered: false,
+              start: null,
+              spread: false,
+              children: [listItem],
+            }
+            tokens.children.splice(destinationSectionIndex + 1, 0, defaultList)
+            return tokens
           }
           destinationList.children.push(listItem)
           return tokens
