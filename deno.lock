@@ -1,8 +1,7 @@
 {
   "version": "3",
   "redirects": {
-    "https://esm.sh/mdast-util-from-markdown@2": "https://esm.sh/mdast-util-from-markdown@2.0.0",
-    "https://esm.sh/mdast-util-to-markdown@2": "https://esm.sh/mdast-util-to-markdown@2.1.0"
+    "https://esm.sh/mdast-util-from-markdown@2.0.0/lib/index.d.ts": "https://esm.sh/v135/mdast-util-from-markdown@2.0.0/lib/index.d.ts"
   },
   "remote": {
     "https://esm.sh/mdast-util-from-markdown@2.0.0": "6faa1f66f444b738c9cf8a0e97084ff0ab08008e0236379c1f25c250dd8457f1",
