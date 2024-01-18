@@ -1,16 +1,15 @@
-import fs from "fs"
 import { toMarkdown } from "mdast-util-to-markdown"
 import { fromMarkdown } from "mdast-util-from-markdown"
 
-const main = async () => {
-  const file = fs.readFileSync("tasks.md", "utf-8")
+const main = () => {
+  const file = Deno.readTextFileSync("tasks.md")
 
   const tokens = fromMarkdown(file)
   console.log(tokens)
 
   const id = "1705225105518_0"
 
-  const list = tokens.children.find((e) => e.type === "list")
+  const list = tokens.children.find((e: any) => e.type === "list")
   if (list.type === "list") {
     const p = list.children[0].children[0]
     if (p.type === "paragraph") {
