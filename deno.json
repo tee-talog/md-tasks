@@ -1,6 +1,6 @@
 {
   "imports": {
-    "mdast-util-to-markdown": "https://esm.sh/mdast-util-to-markdown@2",
-    "mdast-util-from-markdown": "https://esm.sh/mdast-util-from-markdown@2"
+    "mdast-util-to-markdown": "https://esm.sh/mdast-util-to-markdown@2.1.0",
+    "mdast-util-from-markdown": "https://esm.sh/mdast-util-from-markdown@2.0.0"
   }
 }
