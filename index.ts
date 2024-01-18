@@ -7,7 +7,7 @@ const main = () => {
   const tokens = fromMarkdown(file)
   console.log(tokens)
 
-  const id = "1705225105518_0"
+  const id = "1705225105518-0"
 
   const list = tokens.children.find((e) => e.type === "list")
   if (list && list.type === "list") {
@@ -20,7 +20,7 @@ const main = () => {
   }
 
   const text = toMarkdown(tokens)
-  console.log(text)
+  Deno.writeTextFileSync("tasks.md", text)
 }
 
 main()
