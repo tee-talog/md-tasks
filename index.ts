@@ -162,6 +162,11 @@ const addTask = (tokens: Root, ...text: string[]): Root => {
   return tokens
 }
 
+const writeMarkdownIntoFile = (tokens: Root, path: string) => {
+  const str = toMarkdown(tokens)
+  Deno.writeTextFileSync(path, str)
+}
+
 const main = async () => {
   const file = Deno.readTextFileSync("tasks.md")
 
@@ -174,8 +179,7 @@ const main = async () => {
     .arguments("<text...:string>")
     .action((_, ...args) => {
       const newTokens = addTask(tokens, ...args)
-      const str = toMarkdown(newTokens)
-      Deno.writeTextFileSync("tasks.md", str)
+      writeMarkdownIntoFile(newTokens, "tasks.md")
     })
 
   const commandShift = await new Command()
@@ -186,8 +190,7 @@ const main = async () => {
     .action((options, ...args) => {
       const step = (options.step ?? 1) * (options.backward ? -1 : 1)
       const newTokens = shiftTask(tokens, args[0], step)
-      const str = toMarkdown(newTokens)
-      Deno.writeTextFileSync("tasks.md", str)
+      writeMarkdownIntoFile(newTokens, "tasks.md")
     })
 
   await new Command()
