@@ -167,23 +167,33 @@ const main = async () => {
   // debug
   Deno.writeTextFileSync("token.json", JSON.stringify(tokens))
 
-  // const id = "1705755535769"
-
-  // const movedTokens = addTask(tokens, "task text")
-  // const movedTokens = shiftTask(tokens, id, 1)
-  const movedTokens = { debug: "debug" }
-
   await new Command()
     .name("md-tasks")
     .version("0.0.0")
     .description("Simple task management tool based on Markdown")
+    // add
+    .command("add", "add task to first section")
+    .arguments("<text...:string>")
+    .action((options, ...args) => {
+      args.forEach((arg) => {
+        addTask(tokens, arg)
+      })
+      const str = toMarkdown(tokens)
+      Deno.writeTextFileSync("tasks.md", str)
+    })
+    // shift
+    .command("shift", "shift existing task")
+    .option("-b, --backward", "backward shift")
+    .option("-s, --step <step:number>", "shift step")
+    .arguments("<id:string>")
+    .action((options, ...args) => {
+      const step = (options.step ?? 1) * (options.backward ? -1 : 1)
+      shiftTask(tokens, args[0], step)
+      const str = toMarkdown(tokens)
+      Deno.writeTextFileSync("tasks.md", str)
+    })
+    // parse
     .parse(Deno.args)
-
-  // debug
-  Deno.writeTextFileSync("moved.json", JSON.stringify(movedTokens))
-
-  const str = toMarkdown(tokens)
-  Deno.writeTextFileSync("tasks.md", str)
 }
 
 main()
