@@ -182,14 +182,14 @@ const main = async () => {
 
   const commandShift = await new Command()
     .description("shift existing task")
-    .option("-b, --backward", "backward shift")
-    .option("-s, --step <step:number>", "shift step")
+    .option("-b, --backward", "backward shift", { default: false })
+    .option("-s, --step <step:number>", "shift step", { default: 1 })
     .arguments("<id:string>")
     .action((options, ...args) => {
       const file = Deno.readTextFileSync("tasks.md")
       const tokens = fromMarkdown(file)
 
-      const step = (options.step ?? 1) * (options.backward ? -1 : 1)
+      const step = options.step * (options.backward ? -1 : 1)
       const newTokens = shiftTask(tokens, args[0], step)
 
       writeMarkdownIntoFile(newTokens, "tasks.md")
