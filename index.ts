@@ -10,8 +10,10 @@ import type {
   Text,
 } from "https://esm.sh/mdast-util-from-markdown@2.0.0/lib/index.d.ts"
 
+import { Command } from "cliffy"
+
 // タスクを移動する
-const shiftTask = (tokens: Root, id: string, step: number): Root | null => {
+const shiftTask = (tokens: Root, id: string, step: number): Root => {
   // heading 2 のセクションを探す
   const headingIndexes = tokens.children
     .map((token, i) => ({ i, token }))
@@ -94,12 +96,12 @@ const shiftTask = (tokens: Root, id: string, step: number): Root | null => {
     }
   }
 
-  return null
+  throw new Error("Can't find task. ID: " + id)
 }
 
 const generateTaskId = () => Date.now()
 
-const addTask = (tokens: Root, text: string): Root => {
+const addTask = (tokens: Root, ...text: string[]): Root => {
   const taskId = generateTaskId()
 
   // heading 2 のセクションを探す
@@ -123,57 +125,85 @@ const addTask = (tokens: Root, text: string): Root => {
   )
 
   // タスクを追加する
-  const newTaskText = {
-    type: "text",
-    value: `${taskId}: ${text}`,
-  } satisfies Text
+  text.forEach((t) => {
+    const newTaskText = {
+      type: "text",
+      value: `${taskId}: ${t}`,
+    } satisfies Text
 
-  const newParagraph = {
-    type: "paragraph",
-    children: [newTaskText],
-  } satisfies Paragraph
+    const newParagraph = {
+      type: "paragraph",
+      children: [newTaskText],
+    } satisfies Paragraph
 
-  const newTask = {
-    type: "listItem",
-    checked: false,
-    spread: false,
-    children: [newParagraph],
-  } satisfies ListItem
-
-  // 最初のセクション内の最初のリストの最後に追加する
-  // NOTE: とりあえずミュータブルにやる
-  if (firstList) {
-    firstList.children.push(newTask)
-  } else {
-    // 最初のセクションにリストがなければ、リストを作成する
-    const newList = {
-      type: "list",
-      ordered: false,
+    const newTask = {
+      type: "listItem",
+      checked: false,
       spread: false,
-      children: [newTask],
-    } satisfies List
-    tokens.children.splice(headingIndex + 1, 0, newList)
-  }
+      children: [newParagraph],
+    } satisfies ListItem
+
+    // 最初のセクション内の最初のリストの最後に追加する
+    // NOTE: とりあえずミュータブルにやる
+    if (firstList) {
+      firstList.children.push(newTask)
+    } else {
+      // 最初のセクションにリストがなければ、リストを作成する
+      const newList = {
+        type: "list",
+        ordered: false,
+        spread: false,
+        children: [newTask],
+      } satisfies List
+      tokens.children.splice(headingIndex + 1, 0, newList)
+    }
+  })
 
   return tokens
 }
 
-const main = () => {
-  const file = Deno.readTextFileSync("tasks.md")
-
-  const tokens = fromMarkdown(file)
-  // debug
-  Deno.writeTextFileSync("token.json", JSON.stringify(tokens))
-
-  // const id = "1705755535769"
-
-  const movedTokens = addTask(tokens, "task text")
-  // const movedTokens = shiftTask(tokens, id, 1)
-  // debug
-  Deno.writeTextFileSync("moved.json", JSON.stringify(movedTokens))
-
+const writeMarkdownIntoFile = (tokens: Root, path: string) => {
   const str = toMarkdown(tokens)
-  Deno.writeTextFileSync("tasks.md", str)
+  Deno.writeTextFileSync(path, str)
+}
+
+const main = async () => {
+  const commandAdd = await new Command()
+    .description("add task to first section")
+    .arguments("<text...:string>")
+    .action((_, ...args) => {
+      const file = Deno.readTextFileSync("tasks.md")
+      const tokens = fromMarkdown(file)
+
+      const newTokens = addTask(tokens, ...args)
+
+      writeMarkdownIntoFile(newTokens, "tasks.md")
+    })
+
+  const commandShift = await new Command()
+    .description("shift existing task")
+    .option("-b, --backward", "backward shift")
+    .option("-s, --step <step:number>", "shift step")
+    .arguments("<id:string>")
+    .action((options, ...args) => {
+      const file = Deno.readTextFileSync("tasks.md")
+      const tokens = fromMarkdown(file)
+
+      const step = (options.step ?? 1) * (options.backward ? -1 : 1)
+      const newTokens = shiftTask(tokens, args[0], step)
+
+      writeMarkdownIntoFile(newTokens, "tasks.md")
+    })
+
+  await new Command()
+    .name("md-tasks")
+    .version("0.0.0")
+    .description("Simple task management tool based on Markdown")
+    // subcommand
+    .command("add", commandAdd)
+    .command("shift", commandShift)
+    // parse
+    .parse(Deno.args)
 }
 
 main()

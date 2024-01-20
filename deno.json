@@ -1,6 +1,7 @@
 {
   "imports": {
     "mdast-util-to-markdown": "https://esm.sh/mdast-util-to-markdown@2.1.0",
-    "mdast-util-from-markdown": "https://esm.sh/mdast-util-from-markdown@2.0.0"
+    "mdast-util-from-markdown": "https://esm.sh/mdast-util-from-markdown@2.0.0",
+    "cliffy": "https://deno.land/x/cliffy@v1.0.0-rc.3/command/mod.ts"
   }
 }
