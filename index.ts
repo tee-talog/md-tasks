@@ -2,7 +2,10 @@ import { toMarkdown } from "mdast-util-to-markdown"
 import { fromMarkdown } from "mdast-util-from-markdown"
 import type {
   List,
+  ListItem,
+  Paragraph,
   Root,
+  Text,
 } from "https://esm.sh/mdast-util-from-markdown@2.0.0/lib/index.d.ts"
 
 // タスクを移動する
@@ -92,6 +95,67 @@ const shiftTask = (tokens: Root, id: string, step: number): Root | null => {
   return null
 }
 
+const generateTaskId = () => Date.now()
+
+const addTask = (tokens: Root, text: string): Root => {
+  const taskId = generateTaskId()
+
+  // heading 2 のセクションを探す
+  const headingIndexes = tokens.children
+    .map((token, i) => ({ i, token }))
+    .filter(({ token }) => token.type === "heading" && token.depth === 2)
+    .map(({ i }) => i)
+
+  const headingIndex = headingIndexes.at(0)
+  if (headingIndex === undefined) {
+    throw new Error("There is no section")
+  }
+
+  // 一番上のセクションに追加する
+  const firstList = tokens.children.find(
+    (e, i): e is List =>
+      e.type === "list" &&
+      // heading の次のトークンから、次の heading の前のトークンまで
+      i > headingIndex &&
+      (headingIndexes[1] === undefined ? true : i < headingIndexes[1])
+  )
+
+  // タスクを追加する
+  const newTaskText = {
+    type: "text",
+    value: `${taskId}: ${text}`,
+  } satisfies Text
+
+  const newParagraph = {
+    type: "paragraph",
+    children: [newTaskText],
+  } satisfies Paragraph
+
+  const newTask = {
+    type: "listItem",
+    checked: false,
+    spread: false,
+    children: [newParagraph],
+  } satisfies ListItem
+
+  // 最初のセクション内の最初のリストの最後に追加する
+  // NOTE: とりあえずミュータブルにやる
+  if (firstList) {
+    firstList.children.push(newTask)
+  } else {
+    // 最初のセクションにリストがなければ、リストを作成する
+    const newList = {
+      type: "list",
+      ordered: false,
+      spread: false,
+      children: [newTask],
+    } satisfies List
+    tokens.children.splice(headingIndex + 1, 0, newList)
+  }
+
+  return tokens
+}
+
 const main = () => {
   const file = Deno.readTextFileSync("tasks.md")
 
@@ -99,9 +163,10 @@ const main = () => {
   // debug
   Deno.writeTextFileSync("token.json", JSON.stringify(tokens))
 
-  const id = "1705225105518-0"
+  // const id = "1705755535769"
 
-  const movedTokens = shiftTask(tokens, id, 1)
+  const movedTokens = addTask(tokens, "task text")
+  // const movedTokens = shiftTask(tokens, id, 1)
   // debug
   Deno.writeTextFileSync("moved.json", JSON.stringify(movedTokens))
 
