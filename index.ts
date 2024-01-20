@@ -168,17 +168,15 @@ const writeMarkdownIntoFile = (tokens: Root, path: string) => {
 }
 
 const main = async () => {
-  const file = Deno.readTextFileSync("tasks.md")
-
-  const tokens = fromMarkdown(file)
-  // debug
-  Deno.writeTextFileSync("token.json", JSON.stringify(tokens))
-
   const commandAdd = await new Command()
     .description("add task to first section")
     .arguments("<text...:string>")
     .action((_, ...args) => {
+      const file = Deno.readTextFileSync("tasks.md")
+      const tokens = fromMarkdown(file)
+
       const newTokens = addTask(tokens, ...args)
+
       writeMarkdownIntoFile(newTokens, "tasks.md")
     })
 
@@ -188,8 +186,12 @@ const main = async () => {
     .option("-s, --step <step:number>", "shift step")
     .arguments("<id:string>")
     .action((options, ...args) => {
+      const file = Deno.readTextFileSync("tasks.md")
+      const tokens = fromMarkdown(file)
+
       const step = (options.step ?? 1) * (options.backward ? -1 : 1)
       const newTokens = shiftTask(tokens, args[0], step)
+
       writeMarkdownIntoFile(newTokens, "tasks.md")
     })
 
