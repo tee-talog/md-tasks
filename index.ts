@@ -1,3 +1,5 @@
+#!/usr/bin/env -S deno run --allow-read --allow-write
+
 import { toMarkdown } from "mdast-util-to-markdown"
 import { fromMarkdown } from "mdast-util-from-markdown"
 import type {
