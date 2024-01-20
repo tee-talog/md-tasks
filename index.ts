@@ -101,7 +101,7 @@ const shiftTask = (tokens: Root, id: string, step: number): Root => {
 
 const generateTaskId = () => Date.now()
 
-const addTask = (tokens: Root, text: string): Root => {
+const addTask = (tokens: Root, ...text: string[]): Root => {
   const taskId = generateTaskId()
 
   // heading 2 のセクションを探す
@@ -125,37 +125,39 @@ const addTask = (tokens: Root, text: string): Root => {
   )
 
   // タスクを追加する
-  const newTaskText = {
-    type: "text",
-    value: `${taskId}: ${text}`,
-  } satisfies Text
+  text.forEach((t) => {
+    const newTaskText = {
+      type: "text",
+      value: `${taskId}: ${t}`,
+    } satisfies Text
 
-  const newParagraph = {
-    type: "paragraph",
-    children: [newTaskText],
-  } satisfies Paragraph
+    const newParagraph = {
+      type: "paragraph",
+      children: [newTaskText],
+    } satisfies Paragraph
 
-  const newTask = {
-    type: "listItem",
-    checked: false,
-    spread: false,
-    children: [newParagraph],
-  } satisfies ListItem
-
-  // 最初のセクション内の最初のリストの最後に追加する
-  // NOTE: とりあえずミュータブルにやる
-  if (firstList) {
-    firstList.children.push(newTask)
-  } else {
-    // 最初のセクションにリストがなければ、リストを作成する
-    const newList = {
-      type: "list",
-      ordered: false,
+    const newTask = {
+      type: "listItem",
+      checked: false,
       spread: false,
-      children: [newTask],
-    } satisfies List
-    tokens.children.splice(headingIndex + 1, 0, newList)
-  }
+      children: [newParagraph],
+    } satisfies ListItem
+
+    // 最初のセクション内の最初のリストの最後に追加する
+    // NOTE: とりあえずミュータブルにやる
+    if (firstList) {
+      firstList.children.push(newTask)
+    } else {
+      // 最初のセクションにリストがなければ、リストを作成する
+      const newList = {
+        type: "list",
+        ordered: false,
+        spread: false,
+        children: [newTask],
+      } satisfies List
+      tokens.children.splice(headingIndex + 1, 0, newList)
+    }
+  })
 
   return tokens
 }
@@ -175,10 +177,8 @@ const main = async () => {
     .command("add", "add task to first section")
     .arguments("<text...:string>")
     .action((options, ...args) => {
-      args.forEach((arg) => {
-        addTask(tokens, arg)
-      })
-      const str = toMarkdown(tokens)
+      const newTokens = addTask(tokens, ...args)
+      const str = toMarkdown(newTokens)
       Deno.writeTextFileSync("tasks.md", str)
     })
     // shift
