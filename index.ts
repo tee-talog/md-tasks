@@ -13,7 +13,7 @@ import type {
 import { Command } from "cliffy"
 
 // タスクを移動する
-const shiftTask = (tokens: Root, id: string, step: number): Root | null => {
+const shiftTask = (tokens: Root, id: string, step: number): Root => {
   // heading 2 のセクションを探す
   const headingIndexes = tokens.children
     .map((token, i) => ({ i, token }))
@@ -96,7 +96,7 @@ const shiftTask = (tokens: Root, id: string, step: number): Root | null => {
     }
   }
 
-  return null
+  throw new Error("Can't find task. ID: " + id)
 }
 
 const generateTaskId = () => Date.now()
@@ -188,8 +188,8 @@ const main = async () => {
     .arguments("<id:string>")
     .action((options, ...args) => {
       const step = (options.step ?? 1) * (options.backward ? -1 : 1)
-      shiftTask(tokens, args[0], step)
-      const str = toMarkdown(tokens)
+      const newTokens = shiftTask(tokens, args[0], step)
+      const str = toMarkdown(newTokens)
       Deno.writeTextFileSync("tasks.md", str)
     })
     // parse
