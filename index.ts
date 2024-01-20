@@ -10,6 +10,8 @@ import type {
   Text,
 } from "https://esm.sh/mdast-util-from-markdown@2.0.0/lib/index.d.ts"
 
+import { Command } from "cliffy"
+
 // タスクを移動する
 const shiftTask = (tokens: Root, id: string, step: number): Root | null => {
   // heading 2 のセクションを探す
@@ -158,7 +160,7 @@ const addTask = (tokens: Root, text: string): Root => {
   return tokens
 }
 
-const main = () => {
+const main = async () => {
   const file = Deno.readTextFileSync("tasks.md")
 
   const tokens = fromMarkdown(file)
@@ -167,8 +169,16 @@ const main = () => {
 
   // const id = "1705755535769"
 
-  const movedTokens = addTask(tokens, "task text")
+  // const movedTokens = addTask(tokens, "task text")
   // const movedTokens = shiftTask(tokens, id, 1)
+  const movedTokens = { debug: "debug" }
+
+  await new Command()
+    .name("md-tasks")
+    .version("0.0.0")
+    .description("Simple task management tool based on Markdown")
+    .parse(Deno.args)
+
   // debug
   Deno.writeTextFileSync("moved.json", JSON.stringify(movedTokens))
 
