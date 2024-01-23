@@ -102,8 +102,6 @@ const shiftTask = (tokens: Root, id: string, step: number): Root => {
 const generateTaskId = () => Date.now()
 
 const addTask = (tokens: Root, ...text: string[]): Root => {
-  const taskId = generateTaskId()
-
   // heading 2 のセクションを探す
   const headingIndexes = tokens.children
     .map((token, i) => ({ i, token }))
@@ -125,10 +123,11 @@ const addTask = (tokens: Root, ...text: string[]): Root => {
   )
 
   // タスクを追加する
-  text.forEach((t) => {
+  const taskId = generateTaskId()
+  text.forEach((t, i) => {
     const newTaskText = {
       type: "text",
-      value: `${taskId}: ${t}`,
+      value: `${taskId + i}: ${t}`,
     } satisfies Text
 
     const newParagraph = {
