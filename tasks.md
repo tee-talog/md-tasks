@@ -13,10 +13,10 @@ description
 * 1705764133492: format md
 * 1705764167907: organizing directory structure
 * 1705971885001: readme
+* 1705972548213: task id completion
+* 1705972921565: unit test
 
 ## In Progress
-
-
 
 ## Done
 
