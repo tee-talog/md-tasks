@@ -4,7 +4,6 @@ description
 
 ## Todo
 
-* 1705763784406: remove
 * 1705763797333: initialize
 * 1705763921913: audit
 * 1705764075782: numbering non-identified task
@@ -17,6 +16,8 @@ description
 * 1705972921565: unit test
 
 ## In Progress
+
+* 1705763784406: remove
 
 ## Done
 
