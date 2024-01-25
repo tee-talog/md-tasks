@@ -161,6 +161,10 @@ const addTask = (tokens: Root, ...text: string[]): Root => {
   return tokens
 }
 
+const removeTask = (tokens: Root, id: string): Root => {
+  return tokens
+}
+
 const writeMarkdownIntoFile = (tokens: Root, path: string) => {
   const str = toMarkdown(tokens)
   Deno.writeTextFileSync(path, str)
@@ -194,6 +198,18 @@ const main = async () => {
       writeMarkdownIntoFile(newTokens, "tasks.md")
     })
 
+  const commandRemove = await new Command()
+    .description("remove task")
+    .arguments("<id:string>")
+    .action((_, ...args) => {
+      const file = Deno.readTextFileSync("tasks.md")
+      const tokens = fromMarkdown(file)
+
+      const newTokens = removeTask(tokens, ...args)
+
+      writeMarkdownIntoFile(newTokens, "tasks.md")
+    })
+
   await new Command()
     .name("md-tasks")
     .version("0.0.0")
@@ -201,6 +217,7 @@ const main = async () => {
     // subcommand
     .command("add", commandAdd)
     .command("shift", commandShift)
+    .command("remove", commandRemove)
     // parse
     .parse(Deno.args)
 }
