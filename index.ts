@@ -311,12 +311,13 @@ const main = async () => {
 
   const commandRemove = await new Command()
     .description("remove task")
-    .arguments("<id:string>")
-    .action((_, ...args) => {
+    .arguments("[id:string]")
+    .action(async (_, ...args) => {
       const file = Deno.readTextFileSync("tasks.md")
       const tokens = fromMarkdown(file)
+      const id = args[0] ?? (await promptSelectTaskId(tokens)) ?? ""
 
-      const newTokens = removeTask(tokens, ...args)
+      const newTokens = removeTask(tokens, id)
 
       writeMarkdownIntoFile(newTokens, "tasks.md")
     })
