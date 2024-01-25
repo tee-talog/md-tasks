@@ -13,11 +13,12 @@ description
 * 1705764167907: organizing directory structure
 * 1705971885001: readme
 * 1705972921565: unit test
-* 1706165585510: abstract ast manipulation
 * 1706166141034: custom error class
 * 1706172749876: configuration
 
 ## In Progress
+
+* 1706165585510: abstract ast manipulation
 
 ## Done
 
