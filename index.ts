@@ -341,7 +341,11 @@ const main = async () => {
     .action(async (options, ...args) => {
       const file = Deno.readTextFileSync("tasks.md")
       const tokens = fromMarkdown(file)
-      const id = args[0] ?? (await promptSelectTaskId(tokens)) ?? ""
+      const id = args[0] ?? (await promptSelectTaskId(tokens))
+
+      if (id === undefined) {
+        throw new Error("Task ID is not specified")
+      }
 
       const step = options.step * (options.backward ? -1 : 1)
       const newTokens = shiftTask(tokens, id, step)
@@ -355,7 +359,11 @@ const main = async () => {
     .action(async (_, ...args) => {
       const file = Deno.readTextFileSync("tasks.md")
       const tokens = fromMarkdown(file)
-      const id = args[0] ?? (await promptSelectTaskId(tokens)) ?? ""
+      const id = args[0] ?? (await promptSelectTaskId(tokens))
+
+      if (id === undefined) {
+        throw new Error("Task ID is not specified")
+      }
 
       const newTokens = removeTask(tokens, id)
 
