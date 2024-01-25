@@ -8,10 +8,10 @@ import type {
   Paragraph,
   Root,
   Text,
-  Heading,
 } from "https://esm.sh/mdast-util-from-markdown@2.0.0/lib/index.d.ts"
 
-import { Command } from "cliffy"
+import { Command } from "cliffy-command"
+import { prompt, Checkbox } from "cliffy-prompt"
 
 // タスクを移動する
 const shiftTask = (tokens: Root, id: string, step: number): Root => {
