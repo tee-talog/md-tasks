@@ -12,11 +12,12 @@ description
 * 1705764133492: format md
 * 1705764167907: organizing directory structure
 * 1705971885001: readme
-* 1705972548213: task id completion
 * 1705972921565: unit test
 * 1706165585510: abstract ast manipulation
 
 ## In Progress
+
+* 1705972548213: task id completion
 
 ## Done
 
