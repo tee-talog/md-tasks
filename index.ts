@@ -11,7 +11,7 @@ import type {
 } from "https://esm.sh/mdast-util-from-markdown@2.0.0/lib/index.d.ts"
 
 import { Command } from "cliffy-command"
-import { prompt, Select } from "cliffy-prompt"
+import { Input, prompt, Select } from "cliffy-prompt"
 
 // タスクを移動する
 const shiftTask = (tokens: Root, id: string, step: number): Root => {
@@ -280,15 +280,38 @@ const promptSelectTaskId = async (tokens: Root) => {
   return result.ids
 }
 
+const promptTaskText = async () => {
+  const result = await prompt([
+    {
+      name: "text",
+      message: "Input Task Text",
+      type: Input,
+    },
+  ])
+  return result.text
+}
+
 const main = async () => {
   const commandAdd = await new Command()
     .description("add task to first section")
-    .arguments("<text...:string>")
-    .action((_, ...args) => {
+    .arguments("[text...:string]")
+    .action(async (_, ...args) => {
       const file = Deno.readTextFileSync("tasks.md")
       const tokens = fromMarkdown(file)
 
-      const newTokens = addTask(tokens, ...args)
+      if (args.length) {
+        const newTokens = addTask(tokens, ...args)
+
+        writeMarkdownIntoFile(newTokens, "tasks.md")
+        return
+      }
+
+      const text = await promptTaskText()
+      if (text === undefined) {
+        throw new Error("No task text")
+      }
+
+      const newTokens = addTask(tokens, text)
 
       writeMarkdownIntoFile(newTokens, "tasks.md")
     })
