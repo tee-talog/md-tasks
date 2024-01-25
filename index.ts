@@ -8,6 +8,7 @@ import type {
   Paragraph,
   Root,
   Text,
+  Heading,
 } from "https://esm.sh/mdast-util-from-markdown@2.0.0/lib/index.d.ts"
 
 import { Command } from "cliffy-command"
@@ -224,29 +225,32 @@ const writeMarkdownIntoFile = (tokens: Root, path: string) => {
 
 const promptSelectTaskId = async (tokens: Root) => {
   // heading 2 のセクションを探す
-  const headingIndexes = tokens.children
-    .map((token, i) => ({ i, token }))
-    .filter(({ token }) => token.type === "heading" && token.depth === 2)
-    .map(({ i }) => i)
+  const headings = tokens.children
+    .map((token, index) => ({ index, token }))
+    .filter(
+      (e): e is { index: number; token: Heading } =>
+        e.token.type === "heading" && e.token.depth === 2
+    )
 
   // それぞれのセクションについて探索する
-  const tasks: { id: string; text: string }[] = []
+  const tasks = new Map<string, { id: string; text: string }[]>()
   for (
     let headingIndexesIndex = 0;
-    headingIndexesIndex < headingIndexes.length;
+    headingIndexesIndex < headings.length;
     headingIndexesIndex++
   ) {
-    const headingIndex = headingIndexes[headingIndexesIndex]
+    const headingIndex = headings[headingIndexesIndex].index
     const lists = tokens.children.filter(
       (e, i): e is List =>
         e.type === "list" &&
         // heading の次のトークンから、次の heading の前のトークンまで
         i > headingIndex &&
-        (headingIndexes[headingIndexesIndex + 1] === undefined
+        (headings[headingIndexesIndex + 1] === undefined
           ? true
-          : i < headingIndexes[headingIndexesIndex + 1])
+          : i < headings[headingIndexesIndex + 1].index)
     )
 
+    const tasksOfList: { id: string; text: string }[] = []
     for (const list of lists) {
       // リストアイテムを探索
       for (let listIndex = 0; listIndex < list.children.length; listIndex++) {
@@ -263,17 +267,30 @@ const promptSelectTaskId = async (tokens: Root) => {
         }
 
         const [taskId, ...taskText] = text.value.split(":")
-        tasks.push({ id: taskId.trim(), text: taskText.join(":").trim() })
+        tasksOfList.push({ id: taskId.trim(), text: taskText.join(":").trim() })
       }
     }
+
+    const headingText = headings[headingIndexesIndex].token.children[0]
+    if (headingText.type !== "text") {
+      throw new Error("There is no text")
+    }
+    tasks.set(headingText.value, tasksOfList)
   }
 
+  const options = [...tasks.entries()].flatMap(
+    ([sectionText, sectionTasks]) => [
+      Select.separator(""),
+      Select.separator(`## ${sectionText}`),
+      ...sectionTasks.map((e) => `${e.id}: ${e.text}`),
+    ]
+  )
   const result = await prompt([
     {
       name: "ids",
       message: "Select Task",
       type: Select,
-      options: tasks.map((e) => `${e.id}: ${e.text}`),
+      options,
       transform: (value) => value.split(":")[0],
     },
   ])
