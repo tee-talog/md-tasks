@@ -11,7 +11,7 @@ import type {
 } from "https://esm.sh/mdast-util-from-markdown@2.0.0/lib/index.d.ts"
 
 import { Command } from "cliffy-command"
-import { prompt, Checkbox } from "cliffy-prompt"
+import { prompt, Select } from "cliffy-prompt"
 
 // タスクを移動する
 const shiftTask = (tokens: Root, id: string, step: number): Root => {
@@ -222,6 +222,64 @@ const writeMarkdownIntoFile = (tokens: Root, path: string) => {
   Deno.writeTextFileSync(path, str)
 }
 
+const promptSelectTaskId = async (tokens: Root) => {
+  // heading 2 のセクションを探す
+  const headingIndexes = tokens.children
+    .map((token, i) => ({ i, token }))
+    .filter(({ token }) => token.type === "heading" && token.depth === 2)
+    .map(({ i }) => i)
+
+  // それぞれのセクションについて探索する
+  const tasks: { id: string; text: string }[] = []
+  for (
+    let headingIndexesIndex = 0;
+    headingIndexesIndex < headingIndexes.length;
+    headingIndexesIndex++
+  ) {
+    const headingIndex = headingIndexes[headingIndexesIndex]
+    const lists = tokens.children.filter(
+      (e, i): e is List =>
+        e.type === "list" &&
+        // heading の次のトークンから、次の heading の前のトークンまで
+        i > headingIndex &&
+        (headingIndexes[headingIndexesIndex + 1] === undefined
+          ? true
+          : i < headingIndexes[headingIndexesIndex + 1])
+    )
+
+    for (const list of lists) {
+      // リストアイテムを探索
+      for (let listIndex = 0; listIndex < list.children.length; listIndex++) {
+        const listItem = list.children[listIndex]
+
+        // ネストしていないものだけチェック
+        const paragraph = listItem.children[0]
+        if (paragraph.type !== "paragraph") {
+          throw new Error("no paragraph")
+        }
+        const text = paragraph.children[0]
+        if (text.type !== "text") {
+          throw new Error("no text")
+        }
+
+        const [taskId, ...taskText] = text.value.split(":")
+        tasks.push({ id: taskId.trim(), text: taskText.join(":").trim() })
+      }
+    }
+  }
+
+  const result = await prompt([
+    {
+      name: "ids",
+      message: "Select Task",
+      type: Select,
+      options: tasks.map((e) => `${e.id}: ${e.text}`),
+      transform: (value) => value.split(":")[0],
+    },
+  ])
+  return result.ids
+}
+
 const main = async () => {
   const commandAdd = await new Command()
     .description("add task to first section")
@@ -239,13 +297,14 @@ const main = async () => {
     .description("shift existing task")
     .option("-b, --backward", "backward shift", { default: false })
     .option("-s, --step <step:number>", "shift step", { default: 1 })
-    .arguments("<id:string>")
-    .action((options, ...args) => {
+    .arguments("[id:string]")
+    .action(async (options, ...args) => {
       const file = Deno.readTextFileSync("tasks.md")
       const tokens = fromMarkdown(file)
+      const id = args[0] ?? (await promptSelectTaskId(tokens)) ?? ""
 
       const step = options.step * (options.backward ? -1 : 1)
-      const newTokens = shiftTask(tokens, args[0], step)
+      const newTokens = shiftTask(tokens, id, step)
 
       writeMarkdownIntoFile(newTokens, "tasks.md")
     })
