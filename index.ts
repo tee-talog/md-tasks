@@ -8,6 +8,7 @@ import type {
   Paragraph,
   Root,
   Text,
+  Heading,
 } from "https://esm.sh/mdast-util-from-markdown@2.0.0/lib/index.d.ts"
 
 import { Command } from "cliffy"
@@ -161,6 +162,61 @@ const addTask = (tokens: Root, ...text: string[]): Root => {
   return tokens
 }
 
+const removeTask = (tokens: Root, id: string): Root => {
+  // heading 2 のセクションを探す
+  const headingIndexes = tokens.children
+    .map((token, i) => ({ i, token }))
+    .filter(({ token }) => token.type === "heading" && token.depth === 2)
+    .map(({ i }) => i)
+
+  // それぞれのセクションについて探索する
+  for (
+    let headingIndexesIndex = 0;
+    headingIndexesIndex < headingIndexes.length;
+    headingIndexesIndex++
+  ) {
+    const headingIndex = headingIndexes[headingIndexesIndex]
+    const lists = tokens.children.filter(
+      (e, i): e is List =>
+        e.type === "list" &&
+        // heading の次のトークンから、次の heading の前のトークンまで
+        i > headingIndex &&
+        (headingIndexes[headingIndexesIndex + 1] === undefined
+          ? true
+          : i < headingIndexes[headingIndexesIndex + 1])
+    )
+
+    for (const list of lists) {
+      // リストアイテムを探索
+      for (let listIndex = 0; listIndex < list.children.length; listIndex++) {
+        const listItem = list.children[listIndex]
+
+        // ネストしていないものだけチェック
+        const paragraph = listItem.children[0]
+        if (paragraph.type !== "paragraph") {
+          throw new Error("no paragraph")
+        }
+        const text = paragraph.children[0]
+        if (text.type !== "text") {
+          throw new Error("no text")
+        }
+
+        // ID がマッチしているかチェック
+        const [taskId] = text.value.split(":")
+        if (taskId === id) {
+          // リストアイテムを削除して終了
+          // NOTE: とりあえずミュータブルにやる
+          // リストから消す
+          list.children = list.children.filter((_, i) => i !== listIndex)
+          return tokens
+        }
+      }
+    }
+  }
+
+  return tokens
+}
+
 const writeMarkdownIntoFile = (tokens: Root, path: string) => {
   const str = toMarkdown(tokens)
   Deno.writeTextFileSync(path, str)
@@ -194,6 +250,18 @@ const main = async () => {
       writeMarkdownIntoFile(newTokens, "tasks.md")
     })
 
+  const commandRemove = await new Command()
+    .description("remove task")
+    .arguments("<id:string>")
+    .action((_, ...args) => {
+      const file = Deno.readTextFileSync("tasks.md")
+      const tokens = fromMarkdown(file)
+
+      const newTokens = removeTask(tokens, ...args)
+
+      writeMarkdownIntoFile(newTokens, "tasks.md")
+    })
+
   await new Command()
     .name("md-tasks")
     .version("0.0.0")
@@ -201,6 +269,7 @@ const main = async () => {
     // subcommand
     .command("add", commandAdd)
     .command("shift", commandShift)
+    .command("remove", commandRemove)
     // parse
     .parse(Deno.args)
 }
