@@ -13,6 +13,7 @@ import type {
 
 import { Command } from "cliffy-command"
 import { Input, prompt, Select } from "cliffy-prompt"
+import TaskList from "./TaskList.ts"
 
 // タスクを移動する
 const shiftTask = (tokens: Root, id: string, step: number): Root => {
@@ -365,9 +366,12 @@ const main = async () => {
         throw new Error("Task ID is not specified")
       }
 
-      const newTokens = removeTask(tokens, id)
+      const taskList = new TaskList(tokens)
+      const removed = taskList.removeItem(id)
+      console.log(`Removed: ${removed.id}: ${removed.text}`)
 
-      writeMarkdownIntoFile(newTokens, "tasks.md")
+      const ast = taskList.toAst()
+      writeMarkdownIntoFile(ast, "tasks.md")
     })
 
   await new Command()

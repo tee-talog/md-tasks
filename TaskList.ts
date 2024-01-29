@@ -24,8 +24,22 @@ class TaskList {
   }
 
   addItem(text: string, sectionIndex = 0) {}
-  removeItem(taskId: string) {}
-  toAst() {}
+
+  // 指定された Task ID を持つタスクを削除する
+  // 削除したタスクの情報を返す
+  removeItem(taskId: string) {
+    const task = this.getTaskItemById(taskId)
+
+    // getTaskItemById で取得した時点で型チェックは終わっている
+    const list = this.tokens.children[task.listIndex] as List
+    list.children.splice(task.task.listItemIndex, 1)
+
+    return { id: taskId, text: task.task.text }
+  }
+
+  toAst() {
+    return this.tokens
+  }
 
   // Task ID で検索する
   private getTaskItemById(taskId: string): Task {
