@@ -28,13 +28,13 @@ class TaskList {
   toAst() {}
 
   // Task ID で検索する
-  private getTaskItemFromId(taskId: string): Task {
+  private getTaskItemById(taskId: string): Task {
     const sections = this.tokens.children
       .map((element, index) => ({ element, index }))
       .filter(
         ({ element }) => element.type === "heading" && element.depth === 2
       )
-      .map(({ index }) => this.getSectionFromIndex(index))
+      .map(({ index }) => this.getSectionByIndex(index))
 
     // 各セクションを見ていく
     for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
@@ -94,7 +94,7 @@ class TaskList {
   }
 
   // h2 のテキストから、該当するセクション内の要素を取得する
-  private getSectionFromText(headingTitle: string) {
+  private getSectionByText(headingTitle: string) {
     for (let i = 0; i < this.tokens.children.length; i++) {
       const rootChild = this.tokens.children[i]
       if (!rootChild || rootChild.type !== "heading" || rootChild.depth !== 2) {
@@ -107,7 +107,7 @@ class TaskList {
       }
       if (headingChild.value.trim() === headingTitle) {
         // 該当するセクションが確定
-        return this.getSectionFromIndex(i)
+        return this.getSectionByIndex(i)
       }
     }
 
@@ -115,7 +115,7 @@ class TaskList {
   }
 
   // h2 のインデックスから、該当するセクション内の要素を取得する
-  private getSectionFromIndex(index: number) {
+  private getSectionByIndex(index: number) {
     const heading = this.tokens.children[index]
     if (heading.type !== "heading") {
       throw new Error("No Heading")
