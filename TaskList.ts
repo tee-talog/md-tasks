@@ -3,6 +3,8 @@ import type {
   Heading,
 } from "https://esm.sh/mdast-util-from-markdown@2.0.0/lib/index.d.ts"
 
+type AstElement = Root["children"][number]
+
 class TaskList {
   private tokens: Root
 
@@ -47,7 +49,7 @@ class TaskList {
     }
     const title = textElement.value
 
-    const sectionItems: Root["children"] = []
+    const sectionItems: AstElement[] = []
     for (let i = index + 1; ; i++) {
       const sectionItem = this.tokens.children[i]
       if (
