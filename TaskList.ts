@@ -4,7 +4,11 @@ import type {
 } from "https://esm.sh/mdast-util-from-markdown@2.0.0/lib/index.d.ts"
 
 class TaskList {
-  constructor(private tokens: Root) {}
+  private tokens: Root
+
+  constructor(tokens: Root) {
+    this.tokens = structuredClone(tokens)
+  }
 
   addItem(text: string, sectionIndex = 0) {}
   removeItem(taskId: string) {}
