@@ -317,21 +317,30 @@ const main = async () => {
       const file = Deno.readTextFileSync("tasks.md")
       const tokens = fromMarkdown(file)
 
+      const taskList = new TaskList(tokens)
+      const id = Date.now()
       if (args.length) {
-        const newTokens = addTask(tokens, ...args)
+        // 引数で指定された場合
+        const ids = args.map((text, i) => taskList.addItem(id + i + "", text))
 
-        writeMarkdownIntoFile(newTokens, "tasks.md")
-        return
+        if (args.length === 1) {
+          console.log(`Added: ${ids[0]}`)
+        } else {
+          console.log(`Added ${args.length} tasks.\n${ids.join(", ")}`)
+        }
+      } else {
+        // 引数で指定されていない場合、プロンプトで入力してもらう
+        const text = await promptTaskText()
+        if (text === undefined) {
+          throw new Error("No task text")
+        }
+
+        taskList.addItem(id + "", text)
+        console.log(`Added: ${id}: ${text}`)
       }
 
-      const text = await promptTaskText()
-      if (text === undefined) {
-        throw new Error("No task text")
-      }
-
-      const newTokens = addTask(tokens, text)
-
-      writeMarkdownIntoFile(newTokens, "tasks.md")
+      const ast = taskList.toAst()
+      writeMarkdownIntoFile(ast, "tasks.md")
     })
 
   const commandShift = await new Command()

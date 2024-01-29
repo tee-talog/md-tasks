@@ -1,6 +1,7 @@
 import type {
   Root,
   List,
+  ListItem,
 } from "https://esm.sh/mdast-util-from-markdown@2.0.0/lib/index.d.ts"
 
 type AstElement = Root["children"][number]
@@ -23,7 +24,55 @@ class TaskList {
     this.tokens = structuredClone(tokens)
   }
 
-  addItem(text: string, sectionIndex = 0) {}
+  // タスクを追加する
+  addItem(taskId: string, text: string, sectionIndex = 0): string {
+    // 追加する要素を作成
+    const listItem: ListItem = {
+      type: "listItem",
+      children: [
+        {
+          type: "paragraph",
+          children: [
+            {
+              type: "text",
+              value: `${taskId}: ${text.trim()}`,
+            },
+          ],
+        },
+      ],
+    }
+
+    // sectionIndex 番目のセクション
+    // → tokens.children で index 番目の要素
+    const { index } = this.tokens.children
+      .map((element, index) => ({ element, index }))
+      .filter(
+        ({ element }) => element.type === "heading" && element.depth === 2
+      )[sectionIndex]
+    const section = this.getSectionByIndex(index)
+
+    // 該当セクションの最後のリストに追加
+    const list = section.items.findLast(
+      (item): item is List => item.type === "list"
+    )
+
+    if (list) {
+      // リストに追加
+      list.children.push(listItem)
+    } else {
+      // リストがないので追加する
+      section.items.push({
+        type: "list",
+        children: [listItem],
+      })
+    }
+    return taskId
+  }
+
+  // Task ID と移動先のセクションインデックスを指定して、要素を移動する
+  shiftItem(taskId: string, sectionIndex: number): void {
+    //
+  }
 
   // 指定された Task ID を持つタスクを削除する
   // 削除したタスクの情報を返す
@@ -37,6 +86,7 @@ class TaskList {
     return { id: taskId, text: task.task.text }
   }
 
+  // AST を返す
   toAst() {
     return this.tokens
   }
