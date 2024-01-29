@@ -1,9 +1,20 @@
 import type {
   Root,
-  Heading,
+  List,
 } from "https://esm.sh/mdast-util-from-markdown@2.0.0/lib/index.d.ts"
 
 type AstElement = Root["children"][number]
+
+type Task = {
+  // tokens.children の何番目か
+  listIndex: number
+  task: {
+    // tokens.children[listIndex].children の何番目か
+    listItemIndex: number
+    id: string
+    text: string
+  }
+}
 
 class TaskList {
   private tokens: Root
@@ -15,6 +26,72 @@ class TaskList {
   addItem(text: string, sectionIndex = 0) {}
   removeItem(taskId: string) {}
   toAst() {}
+
+  // Task ID で検索する
+  private getTaskItemFromId(taskId: string): Task {
+    const sections = this.tokens.children
+      .map((element, index) => ({ element, index }))
+      .filter(
+        ({ element }) => element.type === "heading" && element.depth === 2
+      )
+      .map(({ index }) => this.getSectionFromIndex(index))
+
+    // 各セクションを見ていく
+    for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
+      const section = sections[sectionIndex]
+
+      // リストを見つける
+      for (let listIndex = 0; listIndex < section.items.length; listIndex++) {
+        const list = section.items[listIndex]
+        if (!list || list.type !== "list") {
+          continue
+        }
+
+        // 見つけたリストのリストアイテム === タスクを見ていく
+        for (
+          let listItemIndex = 0;
+          listItemIndex < list.children.length;
+          listItemIndex++
+        ) {
+          const listItem = list.children[listItemIndex]
+          if (!listItem || listItem.type !== "listItem") {
+            continue
+          }
+
+          // リストアイテムの中にはパラグラフが入っている
+          const paragraph = listItem.children[0]
+          // NOTE: リストがネストしている場合は、type === "list" が来ることもあるが、
+          // タスクにはテキストがあるので、パラグラフが最初に来るはず
+          if (!paragraph || paragraph.type !== "paragraph") {
+            continue
+          }
+
+          // パラグラフの中にテキストが入っている
+          const listItemText = paragraph.children[0]
+          if (!listItemText || listItemText.type !== "text") {
+            continue
+          }
+
+          // ID が一致しているか見る
+          const text = listItemText.value
+          const [id, value] = text.split(":")
+          if (id === taskId) {
+            // 一致
+            return {
+              listIndex: section.index + 1 + listIndex,
+              task: {
+                listItemIndex,
+                id,
+                text: value.trim(),
+              },
+            }
+          }
+        }
+      }
+    }
+
+    throw new Error(`task ID ${taskId} is not found`)
+  }
 
   // h2 のテキストから、該当するセクション内の要素を取得する
   private getSectionFromText(headingTitle: string) {
@@ -65,6 +142,7 @@ class TaskList {
 
     return {
       title,
+      // tokens.children に対するインデックス
       index,
       items: sectionItems,
     }
