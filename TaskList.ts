@@ -62,7 +62,7 @@ class TaskList {
       list.children.push(listItem)
     } else {
       // リストがないので追加する
-      section.items.push({
+      this.tokens.children.splice(section.index + 1, 0, {
         type: "list",
         children: [listItem],
       })
