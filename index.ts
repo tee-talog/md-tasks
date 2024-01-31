@@ -357,10 +357,16 @@ const main = async () => {
         throw new Error("Task ID is not specified")
       }
 
+      const taskList = new TaskList(tokens)
+      // 現在地とオプションから、移動先を決める
+      const fromSectionIndex = taskList.getSectionIdByTaskId(id)
       const step = options.step * (options.backward ? -1 : 1)
-      const newTokens = shiftTask(tokens, id, step)
+      const toSectionIndex = fromSectionIndex + step
 
-      writeMarkdownIntoFile(newTokens, "tasks.md")
+      taskList.shiftItem(id, toSectionIndex)
+
+      const ast = taskList.toAst()
+      writeMarkdownIntoFile(ast, "tasks.md")
     })
 
   const commandRemove = await new Command()
