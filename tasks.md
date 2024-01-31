@@ -18,10 +18,11 @@ description
 
 ## In Progress
 
-* 1706165585510: abstract ast manipulation
+
 
 ## Done
 
 * 1705763879827: don't use same id when add some tasks
 * 1705763784406: remove
 * 1705972548213: task id completion
+* 1706165585510: abstract ast manipulation
