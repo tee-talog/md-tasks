@@ -2,6 +2,7 @@ import type {
   Root,
   List,
   ListItem,
+  Heading,
 } from "https://esm.sh/mdast-util-from-markdown@2.0.0/lib/index.d.ts"
 
 type AstElement = Root["children"][number]
@@ -89,6 +90,29 @@ class TaskList {
   // AST を返す
   toAst() {
     return this.tokens
+  }
+
+  // Task ID がどのセクションに存在するかを返す
+  // 戻り値は tokens.children のインデックスではなく、セクションの通し番号
+  getSectionIdByTaskId(taskId: string): number {
+    const task = this.getTaskItemById(taskId)
+
+    // TODO findLastIndex 以外は共通化できそう
+    const sectionIndex = this.tokens.children
+      .map((element, index) => ({ element, index }))
+      .filter(
+        (e): e is { element: Heading; index: number } =>
+          e.element.type === "heading" && e.element.depth === 2
+      )
+      .map(({ index }) => this.getSectionByIndex(index))
+      // section.index は Heading 要素、task.listIndex は List 要素を指している
+      // task.listIndex を下回る最初の Heading 要素が、所属するセクションとなる
+      .findLastIndex((section) => section.index < task.listIndex)
+
+    if (sectionIndex === -1) {
+      throw new Error(`Task ID "${taskId}" is not found`)
+    }
+    return sectionIndex
   }
 
   // Task ID で検索する
