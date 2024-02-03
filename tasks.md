@@ -1,6 +1,6 @@
 # Tasks
 
-description
+This tool's tasks
 
 ## Todo
 
@@ -11,13 +11,15 @@ description
 * 1705764114843: id prefix
 * 1705764133492: format md
 * 1705764167907: organizing directory structure
-* 1705971885001: readme
 * 1705972921565: unit test
 * 1706166141034: custom error class
 * 1706172749876: configuration
 * 1706664932968: specified type: sectionIndex, astIndex, taskId
+* 1706936044237: format prompt
 
 ## In Progress
+
+* 1705971885001: readme
 
 ## Done
 
