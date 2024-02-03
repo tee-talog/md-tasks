@@ -43,26 +43,9 @@ class TaskList {
       ],
     }
 
-    // sectionIndex 番目のセクション
-    // → tokens.children で index 番目の要素
-    const index = this.sectionIndexToAstIndex(sectionIndex)
-    const section = this.getSectionByIndex(index)
+    // 移動先にタスクを追加
+    this.appendTaskItem(sectionIndex, listItem)
 
-    // 該当セクションの最後のリストに追加
-    const list = section.items.findLast(
-      (item): item is List => item.type === "list"
-    )
-
-    if (list) {
-      // リストに追加
-      list.children.push(listItem)
-    } else {
-      // リストがないので追加する
-      this.tokens.children.splice(section.index + 1, 0, {
-        type: "list",
-        children: [listItem],
-      })
-    }
     return taskId
   }
 
@@ -74,29 +57,8 @@ class TaskList {
     const fromList = this.tokens.children[task.listIndex] as List
     const fromListItem = fromList.children[task.task.listItemIndex] as ListItem
 
-    // TODO これ以降の追加処理は addTask と同じなので共通化できそう
-    //
-    // sectionIndex 番目のセクション
-    // → tokens.children で index 番目の要素
-    const index = this.sectionIndexToAstIndex(sectionIndex)
-    const toSection = this.getSectionByIndex(index)
-
-    // 該当セクションの最後のリストに追加
-    const toList = toSection.items.findLast(
-      (item): item is List => item.type === "list"
-    )
-
-    if (toList) {
-      // リストに追加
-      toList.children.push(fromListItem)
-    } else {
-      // リストがないので追加する
-      this.tokens.children.splice(toSection.index + 1, 0, {
-        type: "list",
-        children: [fromListItem],
-      })
-    }
-
+    // 移動先にタスクを追加
+    this.appendTaskItem(sectionIndex, fromListItem)
     // 移動元のタスクを削除
     fromList.children.splice(task.task.listItemIndex, 1)
   }
@@ -139,6 +101,30 @@ class TaskList {
       throw new Error(`Task ID "${taskId}" is not found`)
     }
     return sectionIndex
+  }
+
+  // タスクを指定したセクションに追加する
+  private appendTaskItem(sectionIndex: number, taskItem: ListItem) {
+    // sectionIndex 番目のセクション
+    // → tokens.children で index 番目の要素
+    const index = this.sectionIndexToAstIndex(sectionIndex)
+    const toSection = this.getSectionByIndex(index)
+
+    // 該当セクションの最後のリストに追加
+    const toList = toSection.items.findLast(
+      (item): item is List => item.type === "list"
+    )
+
+    if (toList) {
+      // リストに追加
+      toList.children.push(taskItem)
+    } else {
+      // リストがないので追加する
+      this.tokens.children.splice(toSection.index + 1, 0, {
+        type: "list",
+        children: [taskItem],
+      })
+    }
   }
 
   // セクションの通し番号を tokens.children のインデックスに変換する
