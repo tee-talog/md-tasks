@@ -18,6 +18,8 @@ type Task = {
   }
 }
 
+type SectionIndex = number
+
 class TaskList {
   private tokens: Root
 
@@ -26,7 +28,11 @@ class TaskList {
   }
 
   // タスクを追加する
-  addItem(taskId: string, text: string, sectionIndex = 0): string {
+  addItem(
+    taskId: string,
+    text: string,
+    sectionIndex: SectionIndex = 0
+  ): string {
     // 追加する要素を作成
     const listItem: ListItem = {
       type: "listItem",
@@ -50,7 +56,7 @@ class TaskList {
   }
 
   // Task ID と移動先のセクションインデックスを指定して、要素を移動する
-  shiftItem(taskId: string, sectionIndex: number): void {
+  shiftItem(taskId: string, sectionIndex: SectionIndex): void {
     // Task ID に該当するタスクを取得
     const task = this.getTaskItemById(taskId)
     // getTaskItemById で取得した時点で型チェックは終わっている
@@ -86,7 +92,7 @@ class TaskList {
     const task = this.getTaskItemById(taskId)
 
     // TODO findLastIndex 以外は共通化できそう
-    const sectionIndex = this.tokens.children
+    const sectionIndex: SectionIndex = this.tokens.children
       .map((element, index) => ({ element, index }))
       .filter(
         (e): e is { element: Heading; index: number } =>
@@ -104,7 +110,7 @@ class TaskList {
   }
 
   // タスクを指定したセクションに追加する
-  private appendTaskItem(sectionIndex: number, taskItem: ListItem) {
+  private appendTaskItem(sectionIndex: SectionIndex, taskItem: ListItem) {
     // sectionIndex 番目のセクション
     // → tokens.children で index 番目の要素
     const index = this.sectionIndexToAstIndex(sectionIndex)
@@ -128,7 +134,7 @@ class TaskList {
   }
 
   // セクションの通し番号を tokens.children のインデックスに変換する
-  private sectionIndexToAstIndex(sectionIndex: number) {
+  private sectionIndexToAstIndex(sectionIndex: SectionIndex) {
     let count = -1
     for (let i = 0; i < this.tokens.children.length; i++) {
       const token = this.tokens.children[i]
