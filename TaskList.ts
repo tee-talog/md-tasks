@@ -10,13 +10,15 @@ type AstElement = Root["children"][number]
 // tokens.children に対するインデックス
 type AstIndex = number
 
+type TaskId = string
+
 // tokens.children[listIndex].children の何番目か
 type ListItemAstIndex = number
 type Task = {
   listIndex: AstIndex
   task: {
     listItemIndex: ListItemAstIndex
-    id: string
+    id: TaskId
     text: string
   }
 }
@@ -39,10 +41,10 @@ class TaskList {
 
   // タスクを追加する
   addItem(
-    taskId: string,
+    taskId: TaskId,
     text: string,
     sectionIndex: SectionIndex = 0
-  ): string {
+  ): TaskId {
     // 追加する要素を作成
     const listItem: ListItem = {
       type: "listItem",
@@ -66,7 +68,7 @@ class TaskList {
   }
 
   // Task ID と移動先のセクションインデックスを指定して、要素を移動する
-  shiftItem(taskId: string, sectionIndex: SectionIndex): void {
+  shiftItem(taskId: TaskId, sectionIndex: SectionIndex): void {
     // Task ID に該当するタスクを取得
     const task = this.getTaskItemById(taskId)
     // getTaskItemById で取得した時点で型チェックは終わっている
@@ -81,7 +83,7 @@ class TaskList {
 
   // 指定された Task ID を持つタスクを削除する
   // 削除したタスクの情報を返す
-  removeItem(taskId: string): { id: string; text: string } {
+  removeItem(taskId: TaskId): { id: TaskId; text: string } {
     const task = this.getTaskItemById(taskId)
 
     // getTaskItemById で取得した時点で型チェックは終わっている
@@ -98,7 +100,7 @@ class TaskList {
 
   // Task ID がどのセクションに存在するかを返す
   // 戻り値は tokens.children のインデックスではなく、セクションの通し番号
-  getSectionIdByTaskId(taskId: string): SectionIndex {
+  getSectionIdByTaskId(taskId: TaskId): SectionIndex {
     const task = this.getTaskItemById(taskId)
 
     // TODO findLastIndex 以外は共通化できそう
@@ -159,7 +161,7 @@ class TaskList {
   }
 
   // Task ID で検索する
-  private getTaskItemById(taskId: string): Task {
+  private getTaskItemById(taskId: TaskId): Task {
     const sections = this.tokens.children
       .map((element, index) => ({ element, index }))
       .filter(

@@ -15,6 +15,7 @@ This tool's tasks
 * 1706166141034: custom error class
 * 1706172749876: configuration
 * 1706936044237: format prompt
+* 1706953682291: delete wastes
 
 ## In Progress
 
