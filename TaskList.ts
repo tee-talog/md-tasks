@@ -5,20 +5,30 @@ import type {
   Heading,
 } from "https://esm.sh/mdast-util-from-markdown@2.0.0/lib/index.d.ts"
 
+// AST 表現
 type AstElement = Root["children"][number]
+// tokens.children に対するインデックス
+type AstIndex = number
 
+// tokens.children[listIndex].children の何番目か
+type ListItemAstIndex = number
 type Task = {
-  // tokens.children の何番目か
-  listIndex: number
+  listIndex: AstIndex
   task: {
-    // tokens.children[listIndex].children の何番目か
-    listItemIndex: number
+    listItemIndex: ListItemAstIndex
     id: string
     text: string
   }
 }
 
+// セクションの通し番号
+// n 番目のセクション（0-indexed）
 type SectionIndex = number
+type Section = {
+  title: string
+  index: AstIndex
+  items: AstElement[]
+}
 
 class TaskList {
   private tokens: Root
@@ -71,7 +81,7 @@ class TaskList {
 
   // 指定された Task ID を持つタスクを削除する
   // 削除したタスクの情報を返す
-  removeItem(taskId: string) {
+  removeItem(taskId: string): { id: string; text: string } {
     const task = this.getTaskItemById(taskId)
 
     // getTaskItemById で取得した時点で型チェックは終わっている
@@ -88,7 +98,7 @@ class TaskList {
 
   // Task ID がどのセクションに存在するかを返す
   // 戻り値は tokens.children のインデックスではなく、セクションの通し番号
-  getSectionIdByTaskId(taskId: string): number {
+  getSectionIdByTaskId(taskId: string): SectionIndex {
     const task = this.getTaskItemById(taskId)
 
     // TODO findLastIndex 以外は共通化できそう
@@ -134,7 +144,7 @@ class TaskList {
   }
 
   // セクションの通し番号を tokens.children のインデックスに変換する
-  private sectionIndexToAstIndex(sectionIndex: SectionIndex) {
+  private sectionIndexToAstIndex(sectionIndex: SectionIndex): AstIndex {
     let count = -1
     for (let i = 0; i < this.tokens.children.length; i++) {
       const token = this.tokens.children[i]
@@ -236,7 +246,7 @@ class TaskList {
   }
 
   // h2 のインデックスから、該当するセクション内の要素を取得する
-  private getSectionByIndex(index: number) {
+  private getSectionByIndex(index: AstIndex): Section {
     const heading = this.tokens.children[index]
     if (heading.type !== "heading") {
       throw new Error("No Heading")
@@ -263,7 +273,6 @@ class TaskList {
 
     return {
       title,
-      // tokens.children に対するインデックス
       index,
       items: sectionItems,
     }
