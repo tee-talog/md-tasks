@@ -13,9 +13,9 @@ description
 * 1705764167907: organizing directory structure
 * 1705971885001: readme
 * 1705972921565: unit test
-* 1706165585510: abstract ast manipulation
 * 1706166141034: custom error class
 * 1706172749876: configuration
+* 1706664932968: specified type: sectionIndex, astIndex, taskId
 
 ## In Progress
 
@@ -24,3 +24,4 @@ description
 * 1705763879827: don't use same id when add some tasks
 * 1705763784406: remove
 * 1705972548213: task id completion
+* 1706165585510: abstract ast manipulation

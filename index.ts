@@ -13,6 +13,7 @@ import type {
 
 import { Command } from "cliffy-command"
 import { Input, prompt, Select } from "cliffy-prompt"
+import TaskList from "./TaskList.ts"
 
 // タスクを移動する
 const shiftTask = (tokens: Root, id: string, step: number): Root => {
@@ -316,21 +317,30 @@ const main = async () => {
       const file = Deno.readTextFileSync("tasks.md")
       const tokens = fromMarkdown(file)
 
+      const taskList = new TaskList(tokens)
+      const id = Date.now()
       if (args.length) {
-        const newTokens = addTask(tokens, ...args)
+        // 引数で指定された場合
+        const ids = args.map((text, i) => taskList.addItem(id + i + "", text))
 
-        writeMarkdownIntoFile(newTokens, "tasks.md")
-        return
+        if (args.length === 1) {
+          console.log(`Added: ${ids[0]}`)
+        } else {
+          console.log(`Added ${args.length} tasks.\n${ids.join(", ")}`)
+        }
+      } else {
+        // 引数で指定されていない場合、プロンプトで入力してもらう
+        const text = await promptTaskText()
+        if (text === undefined) {
+          throw new Error("No task text")
+        }
+
+        taskList.addItem(id + "", text)
+        console.log(`Added: ${id}: ${text}`)
       }
 
-      const text = await promptTaskText()
-      if (text === undefined) {
-        throw new Error("No task text")
-      }
-
-      const newTokens = addTask(tokens, text)
-
-      writeMarkdownIntoFile(newTokens, "tasks.md")
+      const ast = taskList.toAst()
+      writeMarkdownIntoFile(ast, "tasks.md")
     })
 
   const commandShift = await new Command()
@@ -347,10 +357,16 @@ const main = async () => {
         throw new Error("Task ID is not specified")
       }
 
+      const taskList = new TaskList(tokens)
+      // 現在地とオプションから、移動先を決める
+      const fromSectionIndex = taskList.getSectionIdByTaskId(id)
       const step = options.step * (options.backward ? -1 : 1)
-      const newTokens = shiftTask(tokens, id, step)
+      const toSectionIndex = fromSectionIndex + step
 
-      writeMarkdownIntoFile(newTokens, "tasks.md")
+      taskList.shiftItem(id, toSectionIndex)
+
+      const ast = taskList.toAst()
+      writeMarkdownIntoFile(ast, "tasks.md")
     })
 
   const commandRemove = await new Command()
@@ -365,9 +381,12 @@ const main = async () => {
         throw new Error("Task ID is not specified")
       }
 
-      const newTokens = removeTask(tokens, id)
+      const taskList = new TaskList(tokens)
+      const removed = taskList.removeItem(id)
+      console.log(`Removed: ${removed.id}: ${removed.text}`)
 
-      writeMarkdownIntoFile(newTokens, "tasks.md")
+      const ast = taskList.toAst()
+      writeMarkdownIntoFile(ast, "tasks.md")
     })
 
   await new Command()
