@@ -15,10 +15,9 @@ description
 * 1705972921565: unit test
 * 1706166141034: custom error class
 * 1706172749876: configuration
+* 1706664932968: specified type: sectionIndex, astIndex, taskId
 
 ## In Progress
-
-
 
 ## Done
 

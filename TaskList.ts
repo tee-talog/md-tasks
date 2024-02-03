@@ -45,11 +45,7 @@ class TaskList {
 
     // sectionIndex 番目のセクション
     // → tokens.children で index 番目の要素
-    const { index } = this.tokens.children
-      .map((element, index) => ({ element, index }))
-      .filter(
-        ({ element }) => element.type === "heading" && element.depth === 2
-      )[sectionIndex]
+    const index = this.sectionIndexToAstIndex(sectionIndex)
     const section = this.getSectionByIndex(index)
 
     // 該当セクションの最後のリストに追加
@@ -82,11 +78,7 @@ class TaskList {
     //
     // sectionIndex 番目のセクション
     // → tokens.children で index 番目の要素
-    const { index } = this.tokens.children
-      .map((element, index) => ({ element, index }))
-      .filter(
-        ({ element }) => element.type === "heading" && element.depth === 2
-      )[sectionIndex]
+    const index = this.sectionIndexToAstIndex(sectionIndex)
     const toSection = this.getSectionByIndex(index)
 
     // 該当セクションの最後のリストに追加
@@ -147,6 +139,21 @@ class TaskList {
       throw new Error(`Task ID "${taskId}" is not found`)
     }
     return sectionIndex
+  }
+
+  // セクションの通し番号を tokens.children のインデックスに変換する
+  private sectionIndexToAstIndex(sectionIndex: number) {
+    let count = -1
+    for (let i = 0; i < this.tokens.children.length; i++) {
+      const token = this.tokens.children[i]
+      if (token.type === "heading" && token.depth === 2) {
+        count++
+        if (count === sectionIndex) {
+          return i
+        }
+      }
+    }
+    throw new Error(`No. ${sectionIndex} Section is not found`)
   }
 
   // Task ID で検索する
