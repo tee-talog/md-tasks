@@ -182,6 +182,37 @@ const main = async () => {
       writeMarkdownIntoFile(ast, "tasks.md")
     })
 
+  const commandInitialize = await new Command()
+    .description("initialize task list")
+    .action(() => {
+      const ast: Root = {
+        type: "root",
+        children: [
+          {
+            type: "heading",
+            depth: 1,
+            children: [{ type: "text", value: "Tasks" }],
+          },
+          {
+            type: "heading",
+            depth: 2,
+            children: [{ type: "text", value: "To Do" }],
+          },
+          {
+            type: "heading",
+            depth: 2,
+            children: [{ type: "text", value: "Doing" }],
+          },
+          {
+            type: "heading",
+            depth: 2,
+            children: [{ type: "text", value: "Done" }],
+          },
+        ],
+      }
+      writeMarkdownIntoFile(ast, "tasks.md")
+    })
+
   await new Command()
     .name("md-tasks")
     .version("0.0.0")
@@ -190,6 +221,7 @@ const main = async () => {
     .command("add", commandAdd)
     .command("shift", commandShift)
     .command("remove", commandRemove)
+    .command("init", commandInitialize)
     // parse
     .parse(Deno.args)
 }
