@@ -15,7 +15,6 @@ This tool's tasks
 * 1706166141034: custom error class
 * 1706172749876: configuration
 * 1706936044237: format prompt
-* 1706953682291: delete wastes
 
 ## In Progress
 
@@ -29,3 +28,4 @@ This tool's tasks
 * 1706165585510: abstract ast manipulation
 * 1705971885001: readme
 * 1706664932968: specified type: sectionIndex, astIndex, taskId
+* 1706953682291: delete wastes
