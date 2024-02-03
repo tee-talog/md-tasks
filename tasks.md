@@ -1,6 +1,6 @@
 # Tasks
 
-description
+This tool's tasks
 
 ## Todo
 
@@ -15,6 +15,7 @@ description
 * 1706166141034: custom error class
 * 1706172749876: configuration
 * 1706664932968: specified type: sectionIndex, astIndex, taskId
+* 1706936044237: format prompt
 
 ## In Progress
 
