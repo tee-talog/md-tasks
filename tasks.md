@@ -4,7 +4,6 @@ This tool's tasks
 
 ## Todo
 
-* 1705763797333: initialize
 * 1705763921913: audit
 * 1705764075782: numbering non-identified task
 * 1705764058309: specify filepath
@@ -18,7 +17,7 @@ This tool's tasks
 
 ## In Progress
 
-
+* 1705763797333: initialize
 
 ## Done
 
