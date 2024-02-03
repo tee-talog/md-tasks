@@ -4,7 +4,6 @@ This tool's tasks
 
 ## Todo
 
-* 1705763797333: initialize
 * 1705763921913: audit
 * 1705764075782: numbering non-identified task
 * 1705764058309: specify filepath
@@ -29,3 +28,4 @@ This tool's tasks
 * 1705971885001: readme
 * 1706664932968: specified type: sectionIndex, astIndex, taskId
 * 1706953682291: delete wastes
+* 1705763797333: initialize
