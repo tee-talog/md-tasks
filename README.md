@@ -28,6 +28,7 @@ Commands:
   add     [text...]  - add task to first section
   shift   [id]       - shift existing task
   remove  [id]       - remove task
+  init               - initialize task list
 ```
 
 ## Installation
