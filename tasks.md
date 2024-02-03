@@ -19,7 +19,7 @@ This tool's tasks
 
 ## In Progress
 
-* 1706664932968: specified type: sectionIndex, astIndex, taskId
+
 
 ## Done
 
@@ -28,3 +28,4 @@ This tool's tasks
 * 1705972548213: task id completion
 * 1706165585510: abstract ast manipulation
 * 1705971885001: readme
+* 1706664932968: specified type: sectionIndex, astIndex, taskId
