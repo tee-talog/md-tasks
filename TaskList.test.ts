@@ -83,3 +83,25 @@ describe("addItem", () => {
     )
   })
 })
+
+describe("getSectionIdByTaskId", () => {
+  it("最初のセクションに存在するとき", () => {
+    const taskList = new TaskList(token`
+## first
+* id1: item 1
+## second`)
+    const num = taskList.getSectionIdByTaskId("id1")
+    assertEquals(num, 0)
+  })
+
+  it("最後のセクションに存在するとき", () => {
+    const taskList = new TaskList(token`
+## first
+* id1: item 1
+## second
+* id2: item 2
+`)
+    const num = taskList.getSectionIdByTaskId("id2")
+    assertEquals(num, 1)
+  })
+})
