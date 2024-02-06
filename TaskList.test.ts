@@ -19,6 +19,22 @@ const token = (strs: TemplateStringsArray, ...args: string[]) => {
   return fromMarkdown(res.join(""))
 }
 
+describe("toAst", () => {
+  it("mdast の AST が出力されること", () => {
+    const tokens = token`
+# sections
+## section 1
+* list item 1
+* list item 2
+
+## section 2
+## section 3
+text`
+    const taskList = new TaskList(tokens)
+    assertEquals(taskList.toAst(), tokens)
+  })
+})
+
 describe("addItem", () => {
   it("セクションがないとき、エラーをスローすること", () => {
     const taskList = new TaskList(token``)
