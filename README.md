@@ -33,7 +33,10 @@ Commands:
 
 ## Installation
 
-TBA
+```bash
+wget https://github.com/tee-talog/md-tasks/releases/download/1.0.0/mdt
+chmod +x mdt
+```
 
 ## License
 The MIT License
