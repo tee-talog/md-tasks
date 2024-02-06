@@ -1,5 +1,4 @@
 import {
-  assertNotEquals,
   assertEquals,
   assertThrows,
   assertStringIncludes,
@@ -81,6 +80,48 @@ describe("addItem", () => {
         .children[0].value,
       "text 5"
     )
+  })
+})
+
+describe("removeItem", () => {
+  it("削除されること", () => {
+    const taskList = new TaskList(token`
+## first
+* remove-id1: item 1
+* remove-id2: item 2
+## second`)
+
+    taskList.removeItem("remove-id1")
+    assertEquals(
+      (taskList.toAst() as any).children[1].children.some((item: any) =>
+        item.children[0].children[0].value.includes("remove-id1")
+      ),
+      false
+    )
+  })
+
+  describe("削除したタスクの情報を返すこと", () => {
+    it("Task ID", () => {
+      const taskList = new TaskList(token`
+## first
+* remove-id3: item 3
+* remove-id4: item 4
+## second`)
+
+      const res = taskList.removeItem("remove-id3")
+      assertEquals(res.id, "remove-id3")
+    })
+
+    it("Text", () => {
+      const taskList = new TaskList(token`
+## first
+* remove-id3: item 3
+* remove-id4: item 4
+## second`)
+
+      const res = taskList.removeItem("remove-id4")
+      assertEquals(res.text, "item 4")
+    })
   })
 })
 
