@@ -215,7 +215,7 @@ const main = async () => {
 
   await new Command()
     .name("md-tasks")
-    .version("0.0.0")
+    .version("1.0.0")
     .description("Simple task management tool based on Markdown")
     // subcommand
     .command("add", commandAdd)

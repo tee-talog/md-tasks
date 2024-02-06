@@ -12,7 +12,7 @@ Markdown ベースの最高にシンプルなタスク管理ツール
 
 ```
 Usage:   md-tasks
-Version: 0.0.0
+Version: 1.0.0
 
 Description:
 
