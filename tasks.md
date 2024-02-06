@@ -10,13 +10,14 @@ This tool's tasks
 * 1705764114843: id prefix
 * 1705764133492: format md
 * 1705764167907: organizing directory structure
-* 1705972921565: unit test
 * 1706166141034: custom error class
 * 1706172749876: configuration
 * 1706936044237: format prompt
 * 1706962244399: no ast in index.ts
 
 ## In Progress
+
+* 1705972921565: unit test
 
 ## Done
 
