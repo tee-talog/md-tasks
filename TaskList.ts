@@ -61,7 +61,7 @@ class TaskList {
       ],
     }
 
-    // 移動先にタスクを追加
+    // タスクを追加
     this.appendTaskItem(sectionIndex, listItem)
 
     return taskId
