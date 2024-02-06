@@ -17,7 +17,7 @@ This tool's tasks
 
 ## In Progress
 
-* 1705972921565: unit test
+
 
 ## Done
 
@@ -29,3 +29,4 @@ This tool's tasks
 * 1706664932968: specified type: sectionIndex, astIndex, taskId
 * 1706953682291: delete wastes
 * 1705763797333: initialize
+* 1705972921565: unit test
