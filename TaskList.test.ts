@@ -83,6 +83,42 @@ describe("addItem", () => {
   })
 })
 
+describe("shiftItem", () => {
+  describe("該当のセクションにタスクが移動されること", () => {
+    it("元のセクションから削除されること", () => {
+      const taskList = new TaskList(token`
+## first
+* shift-id1: item 1
+* shift-id2: item 2
+## second`)
+
+      taskList.shiftItem("shift-id1", 1)
+      assertEquals(
+        (taskList.toAst() as any).children[1].children.some((item: any) =>
+          item.children[0].children[0].value.includes("shift-id1")
+        ),
+        false
+      )
+    })
+
+    it("移動先のセクションにタスクが移動されること", () => {
+      const taskList = new TaskList(token`
+## first
+* shift-id3: item 3
+* shift-id4: item 4
+## second`)
+
+      taskList.shiftItem("shift-id3", 1)
+      assertEquals(
+        (taskList.toAst() as any).children[3].children.some((item: any) =>
+          item.children[0].children[0].value.includes("shift-id3")
+        ),
+        true
+      )
+    })
+  })
+})
+
 describe("removeItem", () => {
   it("削除されること", () => {
     const taskList = new TaskList(token`
